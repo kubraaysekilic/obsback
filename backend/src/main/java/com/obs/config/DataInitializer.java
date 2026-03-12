@@ -13,27 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Uygulama başlangıcında tüm test verilerini oluşturur.
- *
- * Sıralama (FK bağımlılıkları nedeniyle):
- *   1. Bölümler
- *   2. Öğrenciler (bolum FK)
- *   3. Dersler (bolum FK)
- *   4. Kullanıcılar (ogrenci FK)
- *   5. Not Kayıtları (ogrenci + ders FK)
- *
- * Deney Hesapları:
- *   admin      / Admin123.    → ADMIN
- *   ogretim1   / Ogretim123.  → OGRETIM_UYESI
- *   ogretim2   / Ogretim123.  → OGRETIM_UYESI
- *   ogrenci1   / Ogrenci123.  → KULLANICI → 20210001 (Ali Veli)
- *   ogrenci2   / Ogrenci123.  → KULLANICI → 20210002 (Fatma Şahin)
- *   ogrenci3   / Ogrenci123.  → KULLANICI → 20220001 (Hasan Çelik)
- *   ogrenci4   / Ogrenci123.  → KULLANICI → 20220002 (Zeynep Arslan)
- *   ogrenci5   / Ogrenci123.  → KULLANICI → 20220003 (Emre Demir)
- *   ogrenci6   / Ogrenci123.  → KULLANICI → 20220004 (Selin Kurt)
- */
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
@@ -50,7 +29,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        // Zaten veri varsa tekrar oluşturma (idempotent)
         if (kullaniciRepository.count() > 0) {
             log.info("Veriler zaten mevcut, DataInitializer atlanıyor.");
             return;
@@ -58,13 +36,11 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("=== Test verileri oluşturuluyor... ===");
 
-        // ── 1. BÖLÜMLER ──────────────────────────────────────────────────────
         Bolum bilgisayar = createBolum("Bilgisayar Mühendisliği", "CENG", "Mühendislik Fakültesi");
         Bolum elektrik   = createBolum("Elektrik-Elektronik Mühendisliği", "EEE", "Mühendislik Fakültesi");
         Bolum endustri   = createBolum("Endüstri Mühendisliği", "IE", "Mühendislik Fakültesi");
         log.info("✅ Bölümler oluşturuldu: {}, {}, {}", bilgisayar.getBolumAdi(), elektrik.getBolumAdi(), endustri.getBolumAdi());
 
-        // ── 2. ÖĞRENCİLER ────────────────────────────────────────────────────
         Ogrenci ali    = createOgrenci("Ali",    "Veli",    "20210001", "ali.veli@obs.edu.tr",     "05301234567", bilgisayar, 4, LocalDate.of(2000,  3, 15));
         Ogrenci fatma  = createOgrenci("Fatma",  "Şahin",   "20210002", "fatma.sahin@obs.edu.tr",  "05311234568", bilgisayar, 4, LocalDate.of(2001,  7, 22));
         Ogrenci hasan  = createOgrenci("Hasan",  "Çelik",   "20220001", "hasan.celik@obs.edu.tr",  "05321234569", elektrik,   3, LocalDate.of(2001, 11,  5));
@@ -75,7 +51,6 @@ public class DataInitializer implements CommandLineRunner {
         Ogrenci ayse   = createOgrenci("Ayşe",   "Kara",    "20230002", "ayse.kara@obs.edu.tr",    "05371234574", endustri,   2, LocalDate.of(2003,  6, 25));
         log.info("✅ {} öğrenci oluşturuldu", ogrenciRepository.count());
 
-        // ── 3. DERSLER ───────────────────────────────────────────────────────
         Ders veri     = createDers("Veri Yapıları ve Algoritmalar", "CENG201", 4, bilgisayar, "Dr. Mehmet Yıldız",  "2024-Güz");
         Ders ag       = createDers("Bilgisayar Ağları",              "CENG301", 3, bilgisayar, "Prof. Ayşe Kaya",    "2024-Güz");
         Ders db       = createDers("Veritabanı Yönetim Sistemleri",  "CENG302", 4, bilgisayar, "Dr. Ahmet Albayrak", "2024-Güz");
@@ -85,7 +60,6 @@ public class DataInitializer implements CommandLineRunner {
         Ders yazilim  = createDers("Yazılım Mühendisliği",           "IE401",   3, endustri,   "Dr. Mehmet Yıldız",  "2024-Güz");
         log.info("✅ {} ders oluşturuldu", dersRepository.count());
 
-        // ── 4. KULLANICILAR ──────────────────────────────────────────────────
         createKullanici("admin",    "Admin123.",   "Sistem Yöneticisi",  "admin@obs.edu.tr",      Kullanici.Rol.ADMIN,         null);
         createKullanici("ogretim1", "Ogretim123.", "Dr. Mehmet Yıldız",  "myildiz@obs.edu.tr",    Kullanici.Rol.OGRETIM_UYESI, null);
         createKullanici("ogretim2", "Ogretim123.", "Prof. Ayşe Kaya",    "akaya@obs.edu.tr",      Kullanici.Rol.OGRETIM_UYESI, null);
@@ -99,40 +73,31 @@ public class DataInitializer implements CommandLineRunner {
         createKullanici("demo",     "Demo123.",    "Demo Kullanıcı",     "demo@obs.edu.tr",       Kullanici.Rol.KULLANICI, null);
         log.info("✅ {} kullanıcı oluşturuldu", kullaniciRepository.count());
 
-        // ── 5. NOT KAYITLARI ─────────────────────────────────────────────────
-        // Ali Veli — 4. sınıf, tüm dersler
         createNot(ali,    veri,     78.0, 82.0, 2024, "Güz");
         createNot(ali,    ag,       65.0, 71.0, 2024, "Güz");
         createNot(ali,    db,       88.0, 91.0, 2024, "Güz");
         createNot(ali,    guvenlik, 72.0, 68.0, 2024, "Güz");
 
-        // Fatma Şahin — 4. sınıf
         createNot(fatma,  veri,     90.0, 95.0, 2024, "Güz");
         createNot(fatma,  ag,       85.0, 88.0, 2024, "Güz");
         createNot(fatma,  db,       77.0, 80.0, 2024, "Güz");
         createNot(fatma,  guvenlik, 92.0, 94.0, 2024, "Güz");
 
-        // Hasan Çelik — 3. sınıf, EEE dersleri
         createNot(hasan,  devre,    55.0, 60.0, 2024, "Güz");
         createNot(hasan,  sinyal,   48.0, 52.0, 2024, "Güz");
 
-        // Zeynep Arslan — 3. sınıf, EEE dersleri
         createNot(zeynep, devre,    83.0, 87.0, 2024, "Güz");
         createNot(zeynep, sinyal,   79.0, 81.0, 2024, "Güz");
 
-        // Emre Demir — 3. sınıf, CENG
         createNot(emre,   veri,     62.0, 58.0, 2024, "Güz");
         createNot(emre,   db,       71.0, 75.0, 2024, "Güz");
         createNot(emre,   guvenlik, 80.0, 85.0, 2024, "Güz");
 
-        // Selin Kurt — 3. sınıf, IE
         createNot(selin,  yazilim,  88.0, 92.0, 2024, "Güz");
         createNot(selin,  veri,     75.0, 70.0, 2024, "Güz");
 
-        // Murat Yılmaz — 2. sınıf (hesabı yok — IDOR testi için ID gap oluşturur)
         createNot(murat,  veri,     45.0, 40.0, 2024, "Güz");
 
-        // Ayşe Kara — 2. sınıf (hesabı yok)
         createNot(ayse,   yazilim,  91.0, 96.0, 2024, "Güz");
 
         log.info("✅ {} not kaydı oluşturuldu", notKaydiRepository.count());
@@ -156,7 +121,6 @@ public class DataInitializer implements CommandLineRunner {
         log.info("└────────────────┴──────────────┴──────────────────────────┘");
     }
 
-    // ── Yardımcı metodlar ────────────────────────────────────────────────────
 
     private Bolum createBolum(String ad, String kod, String fakulte) {
         Bolum b = new Bolum();

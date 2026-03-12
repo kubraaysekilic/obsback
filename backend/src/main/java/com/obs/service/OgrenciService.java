@@ -126,7 +126,6 @@ public class OgrenciService {
             resp.setBolumAdi(o.getBolum().getBolumAdi());
             resp.setFakulte(o.getBolum().getFakulte());
         }
-        // Bağlı kullanıcı bilgisi — FK üzerinden
         kullaniciRepository.findByOgrenciId(o.getId()).ifPresent(k -> {
             resp.setKullaniciId(k.getId());
             resp.setKullaniciAdi(k.getKullaniciAdi());

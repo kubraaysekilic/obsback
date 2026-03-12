@@ -7,11 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Bilgi Güvenliği Deneyi — STRIDE tehdit kayıt tablosu.
- * Her güvenlik olayı (başarısız giriş, yetkisiz erişim, vb.) burada loglanır.
- * DoS / Elevation of Privilege / Repudiation deneyleri için kritik varlık.
- */
 @Entity
 @Table(name = "security_log")
 @Data

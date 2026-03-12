@@ -13,15 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Auth endpoint — STRIDE: Spoofing koruması
- *
- * Değişiklikler:
- *  - Her başarısız giriş SecurityLog'a yazılır (Hydra / Burp Suite deneyi için görünür)
- *  - 5 denemeden sonra IP bazlı bruteforce uyarısı response'a eklenir
- *  - /api/auth/register herkese açık → Elevation of Privilege deneyi için kasıtlı bırakıldı
- *  - /api/auth/security-logs sadece ADMIN görebilir
- */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -35,7 +26,6 @@ public class AuthController {
                                    HttpServletRequest httpRequest) {
         String ip = getClientIp(httpRequest);
 
-        // Bruteforce ön kontrolü (Spoofing — STRIDE)
         if (securityLogService.isBruteForce(ip)) {
             securityLogService.log(ip, request.getKullaniciAdi(),
                     SecurityLog.OlayTuru.LOGIN_FAILED,
@@ -65,10 +55,6 @@ public class AuthController {
         }
     }
 
-    /**
-     * KASITLI GÜVENLİK AÇIĞI — Elevation of Privilege deneyi için
-     * Rol parametresi dışarıdan alınabiliyor: {"rol":"ADMIN"} ile admin hesabı açılabilir.
-     */
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody AuthDTO.RegisterRequest request,
                                                          HttpServletRequest httpRequest) {

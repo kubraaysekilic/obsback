@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
-// ========== BÖLÜM DTO ==========
 public class BolumDTO {
 
     @Data @NoArgsConstructor @AllArgsConstructor

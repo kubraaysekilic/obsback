@@ -32,7 +32,6 @@ public class NotKaydi {
 
     private String donem;
 
-    // Ortalama hesaplama: %40 vize + %60 final
     public Double getOrtalama() {
         if (vizeNotu == null && finalNotu == null) return null;
         double vize = vizeNotu != null ? vizeNotu : 0;
@@ -40,7 +39,6 @@ public class NotKaydi {
         return (vize * 0.4) + (fin * 0.6);
     }
 
-    // Harf notu hesaplama
     public String getHarfNotu() {
         Double ort = getOrtalama();
         if (ort == null) return "-";
@@ -55,7 +53,6 @@ public class NotKaydi {
         return "FF";
     }
 
-    // Geçti/Kaldı
     public boolean isGecti() {
         Double ort = getOrtalama();
         return ort != null && ort >= 60;

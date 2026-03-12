@@ -10,14 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Bölüm Controller
- *
- * Yetki matrisi (DÜZELTME: Orijinal kodda @PreAuthorize YOKTU — herkes silip oluşturabiliyordu):
- *   GET       → Kimlik doğrulanmış herkes
- *   POST/PUT  → Sadece ADMIN
- *   DELETE    → Sadece ADMIN
- */
 @RestController
 @RequestMapping("/api/bolumler")
 @RequiredArgsConstructor

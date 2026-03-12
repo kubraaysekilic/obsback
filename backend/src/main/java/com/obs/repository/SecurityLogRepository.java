@@ -18,12 +18,10 @@ public interface SecurityLogRepository extends JpaRepository<SecurityLog, Long> 
 
     List<SecurityLog> findByKullaniciAdiOrderByOlusturmaZamaniDesc(String kullaniciAdi);
 
-    // Son N dakikada bir IP'nin kaç başarısız giriş yaptığını say (bruteforce tespiti)
     @Query("SELECT COUNT(s) FROM SecurityLog s WHERE s.ipAdresi = :ip " +
            "AND s.olayTuru = 'LOGIN_FAILED' AND s.olusturmaZamani > :since")
     long countRecentFailedLogins(@Param("ip") String ip, @Param("since") LocalDateTime since);
 
-    // Son N dakikada bir IP'nin toplam istek sayısı (DoS tespiti)
     @Query("SELECT COUNT(s) FROM SecurityLog s WHERE s.ipAdresi = :ip " +
            "AND s.olusturmaZamani > :since")
     long countRecentRequests(@Param("ip") String ip, @Param("since") LocalDateTime since);

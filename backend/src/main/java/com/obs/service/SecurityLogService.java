@@ -8,16 +8,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Tüm STRIDE tehdit kategorilerini kaydeden merkezi servis.
- */
 @Service
 @RequiredArgsConstructor
 public class SecurityLogService {
 
     private final SecurityLogRepository repo;
 
-    /** Genel log ekleme */
     public SecurityLog log(String ip, String kullaniciAdi, SecurityLog.OlayTuru tur,
                            String aciklama, String endpoint, String metod,
                            SecurityLog.OlaySonucu sonuc, int risk) {

@@ -5,17 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Sistem kullanıcısı — giriş, yetki ve oturum yönetimi.
- *
- * ADMIN        : Tüm yetkiler
- * OGRETIM_UYESI: Ders/not ekleme-güncelleme
- * KULLANICI    : Sadece okuma (öğrenci hesabı)
- *
- * Öğrenci hesapları için ogrenci alanı FK ile bağlıdır.
- * Rol KULLANICI ise ogrenci != null olmalıdır.
- * ADMIN / OGRETIM_UYESI rolleri için ogrenci null olabilir.
- */
 @Entity
 @Table(name = "kullanici")
 @Data
@@ -46,11 +35,6 @@ public class Kullanici {
     @Column(nullable = false)
     private boolean aktif = true;
 
-    /**
-     * Bu kullanıcıya karşılık gelen öğrenci kaydı.
-     * KULLANICI rolündeki hesaplar için zorunlu,
-     * ADMIN / OGRETIM_UYESI için null bırakılabilir.
-     */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ogrenci_id", unique = true)
     private Ogrenci ogrenci;

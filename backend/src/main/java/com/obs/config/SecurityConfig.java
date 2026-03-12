@@ -18,19 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * Güvenlik yapılandırması
- *
- * Rol hiyerarşisi (URL seviyesi):
- *   /api/auth/login,register         → herkese açık (Spoofing / EoP deneyi)
- *   /api/kullanicilar/**              → sadece ADMIN
- *   /api/auth/security-logs/**        → sadece ADMIN
- *   /api/notlar/benim/**              → sadece KULLANICI (öğrenci kendi notları)
- *   /api/dersler/benim/**             → sadece KULLANICI (öğrenci kendi dersleri)
- *   diğer /api/**                     → kimlik doğrulaması + @PreAuthorize ile ince kontrol
- *
- * Method-level yetki: @EnableMethodSecurity → controller'larda @PreAuthorize çalışır.
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -72,20 +59,15 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
 
-                // ── Herkese açık ────────────────────────────────────────────
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/register").permitAll()   // Kasıtlı açık — EoP deneyi
 
-                // ── Sadece ADMIN ─────────────────────────────────────────────
                 .requestMatchers("/api/kullanicilar/**").hasRole("ADMIN")
                 .requestMatchers("/api/auth/security-logs/**").hasRole("ADMIN")
 
-                // ── Sadece KULLANICI (öğrenci) — kendi verisi ────────────────
-                // (ek kontrol controller'da yapılır: gerçekten kendi ogrenciId'si mi?)
                 .requestMatchers("/api/notlar/benim/**").hasRole("KULLANICI")
                 .requestMatchers("/api/dersler/benim/**").hasRole("KULLANICI")
 
-                // ── Kimliği doğrulanmış herkes — ince kontrol @PreAuthorize ile
                 .anyRequest().authenticated()
             );
 

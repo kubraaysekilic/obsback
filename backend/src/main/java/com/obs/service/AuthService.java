@@ -72,7 +72,6 @@ public class AuthService {
                 : Kullanici.Rol.KULLANICI);
         kullanici.setAktif(true);
 
-        // Öğrenci FK bağlantısı — ogrenciId verilmişse bağla
         if (request.getOgrenciId() != null) {
             if (kullaniciRepository.existsByOgrenciId(request.getOgrenciId())) {
                 throw new RuntimeException("Bu öğrenci zaten bir hesaba bağlı");

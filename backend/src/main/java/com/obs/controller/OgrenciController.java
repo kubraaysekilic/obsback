@@ -15,22 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Öğrenci Controller
- *
- * Yetki matrisi:
- *   GET  → ADMIN, OGRETIM_UYESI
- *   POST → ADMIN, OGRETIM_UYESI
- *   PUT  → ADMIN, OGRETIM_UYESI  (Tampering deneyi)
- *   DELETE / toggle-aktif → ADMIN
- *
- * KULLANICI rolü (öğrenci) bu endpoint'lere hiç erişemez → 403.
- * Öğrenci kendi bilgilerine /api/notlar/benim ve /api/dersler/benim ile erişir.
- *
- * STRIDE — Information Disclosure (IDOR):
- *   Yetkili kullanıcılar GET /{id} ile ardışık id değiştirerek tüm öğrenci
- *   kayıtlarına erişebilir. Her erişim SecurityLog'a kaydedilir.
- */
 @RestController
 @RequestMapping("/api/ogrenciler")
 @RequiredArgsConstructor
@@ -45,10 +29,6 @@ public class OgrenciController {
         return ResponseEntity.ok(ogrenciService.getAll());
     }
 
-    /**
-     * IDOR deneyi — ADMIN/OGRETIM_UYESI ardışık id ile erişir.
-     * KULLANICI rolü bu endpoint'e erişemez → 403 + log.
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','OGRETIM_UYESI')")
     public ResponseEntity<OgrenciDTO.Response> getById(@PathVariable Long id,
@@ -95,10 +75,6 @@ public class OgrenciController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ogrenciService.create(request));
     }
 
-    /**
-     * Tampering deneyi — KULLANICI rolü bu endpoint'e erişemez → 403.
-     * Burp Suite: OGRETIM_UYESI tokenıyla PUT isteğini intercept et, notu manipüle et.
-     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','OGRETIM_UYESI')")
     public ResponseEntity<OgrenciDTO.Response> update(@PathVariable Long id,

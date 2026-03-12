@@ -16,15 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Kullanıcı yönetimi — STRIDE: Elevation of Privilege deneyi
- *
- * Senaryolar:
- *  1. KULLANICI rolüyle GET /api/kullanicilar → 403 + log
- *  2. ADMIN ile PUT /{id}/rol-degistir → yetki yükseltme, log
- *  3. POST /api/auth/register {"rol":"ADMIN"} → kasıtlı açık
- *  4. DELETE /security-logs/temizle → Repudiation deneyi
- */
 @RestController
 @RequestMapping("/api/kullanicilar")
 @RequiredArgsConstructor
@@ -34,7 +25,6 @@ public class KullaniciController {
     private final OgrenciRepository ogrenciRepository;
     private final SecurityLogService securityLogService;
 
-    /** Tüm kullanıcıları listele — sadece ADMIN */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> getAll() {
@@ -44,7 +34,6 @@ public class KullaniciController {
         return ResponseEntity.ok(liste);
     }
 
-    /** Kullanıcı detay — sadece ADMIN */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getById(@PathVariable Long id) {
@@ -53,11 +42,6 @@ public class KullaniciController {
         return ResponseEntity.ok(toMap(k));
     }
 
-    /**
-     * ROL DEĞİŞTİR — Elevation of Privilege deneyi
-     * KULLANICI → OGRETIM_UYESI veya ADMIN yapılabilir.
-     * Her değişiklik SecurityLog'a yüksek riskle kaydedilir.
-     */
     @PutMapping("/{id}/rol-degistir")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> rolDegistir(
@@ -90,10 +74,6 @@ public class KullaniciController {
         ));
     }
 
-    /**
-     * ÖĞRENCİ BAĞLA — Var olan kullanıcıya öğrenci kaydı atama (ADMIN)
-     * Örn: ogrenci1 hesabını ogrenci tablosunun 1. kaydına bağla
-     */
     @PutMapping("/{id}/ogrenci-bagla")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> ogrenciBagla(
@@ -107,7 +87,6 @@ public class KullaniciController {
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
         if (ogrenciId == null) {
-            // Bağlantıyı kopar
             kullanici.setOgrenci(null);
         } else {
             if (kullaniciRepository.existsByOgrenciId(ogrenciId)) {
@@ -129,7 +108,6 @@ public class KullaniciController {
         return ResponseEntity.ok(toMap(kullanici));
     }
 
-    /** Aktif/pasif aç-kapa — sadece ADMIN */
     @PatchMapping("/{id}/toggle-aktif")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> toggleAktif(
@@ -152,7 +130,6 @@ public class KullaniciController {
         return ResponseEntity.ok(toMap(kullanici));
     }
 
-    /** Kullanıcı sil — sadece ADMIN */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(
@@ -173,10 +150,6 @@ public class KullaniciController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * REPUDIATION deneyi — log temizleme girişimi
-     * Gerçekte silme yapılmaz; sadece inkâr edilemez log kaydı oluşturulur.
-     */
     @DeleteMapping("/security-logs/temizle")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> temizleLog(
@@ -195,7 +168,6 @@ public class KullaniciController {
         ));
     }
 
-    // ---- yardımcı ----
 
     private Map<String, Object> toMap(Kullanici k) {
         Map<String, Object> map = new HashMap<>();
@@ -205,7 +177,6 @@ public class KullaniciController {
         map.put("email",        k.getEmail());
         map.put("rol",          k.getRol().name());
         map.put("aktif",        k.isAktif());
-        // FK — null-safe
         map.put("ogrenciId",    k.getOgrenci() != null ? k.getOgrenci().getId()        : null);
         map.put("ogrenciNo",    k.getOgrenci() != null ? k.getOgrenci().getOgrenciNo() : null);
         map.put("ogrenciAd",    k.getOgrenci() != null

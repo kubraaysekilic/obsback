@@ -24,7 +24,6 @@ public class JwtUtils {
     @Value("${app.jwt.expiration}")
     private int jwtExpiration;
 
-    // Token oluştur
     public String generateToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         return Jwts.builder()
@@ -35,7 +34,6 @@ public class JwtUtils {
                 .compact();
     }
 
-    // Token'dan kullanıcı adı al
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -45,7 +43,6 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    // Token doğrula
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
